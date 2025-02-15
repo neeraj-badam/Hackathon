@@ -50,6 +50,8 @@ exports.getAllProducts = async (req, res) => {
 // ✅ Update product
 exports.updateProduct = async (req, res) => {
   try {
+    console.log('Updating Product')
+    console.log( req.body );
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(product);
   } catch (error) {
