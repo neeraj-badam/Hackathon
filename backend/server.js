@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
 
+const Order = require("./models/Order");
 const Product = require("./models/Product");
 const User = require("./models/User");
 
