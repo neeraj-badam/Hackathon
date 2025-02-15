@@ -7,7 +7,8 @@ const orderSchema = new mongoose.Schema({
   status: { type: String, default: "Pending" },
   location: { lat: Number, lng: Number },
   deliveryAddress: { type: String, required: true },
-  userName: { type: String, required: true }
+  userName: { type: String, required: true },
+  driverId: { type: String, default: null },  // ✅ Assigned Driver
 }, { timestamps: true });
 
 const Order = mongoose.model("Order", orderSchema);
