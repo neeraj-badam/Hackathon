@@ -1,5 +1,5 @@
 .admin-panel {
-    width: 80%;
+    width: 100%;
     margin: auto;
     padding: 20px;
     font-family: Arial, sans-serif;
@@ -92,7 +92,7 @@
   
 
   .admin-panel {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     font-family: Arial, sans-serif;
   }
@@ -147,6 +147,7 @@
   }
   
   .modal {
+    width: 30%;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -158,11 +159,74 @@
     border-radius: 10px;
   }
   
-  .modal-content input {
-    width: 100%;
+  .modal-content input, .modal-content textarea, .modal-content select {
+    width: 95%;
     margin-bottom: 10px;
+    margin-right: 10px;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
+  }
+  
+
+
+
+  .order-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .order-details {
+    flex: 2;
+    font-weight: bold;
+  }
+  
+  .order-actions {
+    display: flex;
+    gap: 10px; /* Adds spacing between elements */
+    align-items: center;
+  }
+  
+  .order-status-dropdown {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  
+  .update-btn {
+    background: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .update-btn:hover {
+    background: #0056b3;
+  }
+  
+  .delete-btn {
+    background: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .delete-btn:hover {
+    background: #a71d2a;
   }
   

@@ -10,13 +10,11 @@ function AdminLogin() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/admin/login", { email, password });
+      const res = await axios.post("http://localhost:8000/api/admin/login", { email, password });
 
       if (res.data.token) {
         // ✅ Save admin details & token in Redux & localStorage
         dispatch(adminLogin({ admin: { email: res.data.email, role: "admin" }, token: res.data.token }));
-        localStorage.setItem("admin", JSON.stringify({ email: res.data.email, role: "admin" }));
-        localStorage.setItem("adminToken", res.data.token);
 
         window.location.href = "/admin"; // Redirect to Admin Panel
       } else {

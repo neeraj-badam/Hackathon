@@ -16,9 +16,9 @@ function DriverLogin() {
   // ✅ Handle Driver Login
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/driver/login", { email, password });
+      const res = await axios.post("http://localhost:8000/api/driver/login", { email, password });
       console.log( res );
-      dispatch(driverLogin({ driver: { email: res.data.driver.email, role: "driver", name: res.data.driver.name }, token: res.data.token }));
+      dispatch(driverLogin({ driver: { email: res.data.driver.email, role: "driver", name: res.data.driver.name, _id: res.data.driver._id }, token: res.data.token }));
       navigate("/driver-dashboard"); // Redirect to order tracking
     } catch (error) {
       alert("Invalid Credentials!");
@@ -29,7 +29,7 @@ function DriverLogin() {
   const handleRegister = async () => {
     try {
       console.log(' register');
-      const res = await axios.post("http://localhost:5000/api/driver/register", { name, email, password });
+      const res = await axios.post("http://localhost:8000/api/driver/register", { name, email, password });
       console.log( res );
       alert(res.data.message);
       setIsRegistering(false); // Switch to login mode

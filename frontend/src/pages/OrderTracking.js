@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:8000");
 const mapContainerStyle = { width: "100%", height: "400px" };
 const GOOGLE_MAPS_API_KEY = "AIzaSyBt8t8xMW05ps5KQzLlQtbgmzSXyuvx5EE"; // Replace with your actual API key
 
@@ -53,7 +53,7 @@ function OrderTracking() {
   // ✅ Fetch Order Details (Driver Location & Delivery Address)
   const fetchOrderDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/orders/${orderId}/get-location`);
+      const res = await axios.get(`http://localhost:8000/api/orders/${orderId}/get-location`);
 
       if (res.data.status) {
         setOrderStatus(res.data.status);
@@ -115,7 +115,7 @@ function OrderTracking() {
         // ✅ Send updated location to the backend
         try {
           await axios.put(
-            `http://localhost:5000/api/driver/orders/${orderId}/update-location`,
+            `http://localhost:8000/api/driver/orders/${orderId}/update-location`,
             { lat: latitude, lng: longitude },
             { headers: { Authorization: `Bearer ${token}` } }
           );

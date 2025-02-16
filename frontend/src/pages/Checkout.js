@@ -1,186 +1,86 @@
 import { useSelector, useDispatch } from "react-redux";
-import { clearCart, applyCoupon, increaseQuantity, decreaseQuantity } from "../redux/cartSlice"; 
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { Trash2, ArrowLeft } from "lucide-react";
+import { clearCart, applyCoupon } from "../redux/cartSlice";
+import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-// ✅ Load Stripe Public Key
-const stripePromise = loadStripe("pk_test_51QsreKE6VDYBbjs5Rnftal44mgvQYje5VYqfGir6McT8cAZA3Bux4TV0h8TIcsVdWj15MFJ66FrqdNW0i03jiazK00Piqa9rJE");
+const stripePromise = loadStripe("pk_test_51QssF8Fz5J2atefwS53D47DeItlCRqaYpTfvk44usiDL1t5vD9yqBMkmX4SS5r7xKlm4YUIN3qaE5gz0PiIUscTx00glyoIWP2");
 
-// ✅ Payment Form Component
-function CheckoutForm({ total, onSuccess }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [clientSecret, setClientSecret] = useState("");
-
-  // Fetch Payment Intent from Backend
-  useEffect(() => {
-    const createPaymentIntent = async () => {
-      try {
-        const response = await axios.post("http://localhost:5000/api/payment", {
-          amount: total,
-        });
-        setClientSecret(response.data.clientSecret);
-      } catch (error) {
-        console.error("Error creating payment intent:", error);
-      }
-    };
-    createPaymentIntent();
-  }, [total]);
-
-  const handlePayment = async (e) => {
-    e.preventDefault();
-    if (!stripe || !elements || !clientSecret) return;
-
-    try {
-      const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-        },
-      });
-
-      if (error) {
-        console.error("Payment Error:", error);
-      } else if (paymentIntent.status === "succeeded") {
-        onSuccess();
-      }
-    } catch (err) {
-      console.error("Payment Error:", err);
-    }
-  };
-
-  return (
-    <form onSubmit={handlePayment} className="mt-4">
-      <CardElement className="p-3 border rounded" />
-      <button
-        type="submit"
-        disabled={!stripe || !clientSecret}
-        className="mt-4 px-4 py-2 bg-green-500 text-white rounded w-full"
-      >
-        Pay ${total.toFixed(2)}
-      </button>
-    </form>
-  );
-}
-
-// ✅ Checkout Page Component
 function Checkout() {
-  const cart = useSelector((state) => state.cart);
+  const { items, total, discount, coupon } = useSelector((state) => state.cart);
+  console.log( total );
+  const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [couponCode, setCouponCode] = useState("");
-  const [showPayment, setShowPayment] = useState(false);
 
-  const handleApplyCoupon = () => {
+  const [couponCode, setCouponCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleCouponApply = () => {
     dispatch(applyCoupon(couponCode));
   };
 
-  const handleOrderSuccess = async () => {
+  const handlePayment = async () => {
+    if (!user) {
+      setErrorMessage("Please log in to proceed with payment.");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:5000/api/orders", {
-        userId: "12345", // Replace with actual logged-in user ID
-        items: cart.items,
-        total: cart.total - cart.discount,
-        status: "Processing",
+      const stripe = await stripePromise;
+      console.log( user );
+      const res = await axios.post("http://localhost:8000/api/payment", { 
+        items, 
+        userId: user._id,
+        userName: user.name,
+        deliveryAddress: user.address
       });
 
-      if (response.status === 201) {
-        dispatch(clearCart());
-        navigate("/orders");
+      if (res.data.error) {
+        setErrorMessage(res.data.error);
+        return;
+      }
+
+      const result = await stripe.redirectToCheckout({ sessionId: res.data.sessionId });
+
+      if (result.error) {
+        setErrorMessage(result.error.message);
+      }  else {
+        dispatch(clearCart()); // Clear cart after successful payment
+        navigate("/orders"); // Redirect to Orders page
       }
     } catch (error) {
-      console.error("Error creating order", error);
+      setErrorMessage("Payment failed. Please try again.");
+      console.error("Payment Error:", error.message);
     }
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold mb-4">Checkout</h1>
+    <div>
+      <h2>Checkout</h2>
+      {items.map((item) => (
+        <p key={item._id}>
+          {item.name} - ${item.price.toFixed(2)} x {item.quantity}
+        </p>
+      ))}
+      
+      <h3>Subtotal: ${total.toFixed(2)}</h3>
+      <input
+        type="text"
+        placeholder="Enter Coupon Code"
+        value={couponCode}
+        onChange={(e) => setCouponCode(e.target.value)}
+      />
+      <button onClick={handleCouponApply}>Apply Coupon</button>
+      
+      {coupon && <h3>Discount ({coupon}): -${discount.toFixed(2)}</h3>}
+      <h2>Total: ${(total - discount).toFixed(2)}</h2>
 
-      {/* Back to Home Button */}
-      <button
-        className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded mb-4"
-        onClick={() => navigate("/home")}
-      >
-        <ArrowLeft size={16} /> Back to Home
-      </button>
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-      {cart.items.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <div>
-          {cart.items.map((item) => (
-            <div key={item._id} className="border p-4 mb-4 rounded flex justify-between items-center">
-              <div>
-                <h2 className="text-lg font-semibold">{item.name}</h2>
-                <p>${item.price.toFixed(2)}</p>
-              </div>
-              <div className="flex items-center">
-                <button 
-                  className="px-3 py-1 bg-red-500 text-white rounded" 
-                  onClick={() => dispatch(decreaseQuantity(item._id))}
-                >
-                  <Trash2 size={16} />
-                </button>
-                <span className="px-3">{item.quantity}</span>
-                <button 
-                  className="px-3 py-1 bg-gray-300 rounded" 
-                  onClick={() => dispatch(increaseQuantity(item._id))}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          ))}
-
-          {/* Apply Coupon */}
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold">Apply Coupon:</h3>
-            <input 
-              type="text" 
-              placeholder="Enter Coupon Code" 
-              value={couponCode} 
-              onChange={(e) => setCouponCode(e.target.value)} 
-              className="p-2 border rounded w-full mt-2"
-            />
-            <button 
-              className="px-4 py-2 bg-blue-500 text-white rounded mt-2"
-              onClick={handleApplyCoupon}
-            >
-              Apply Coupon
-            </button>
-
-            {cart.coupon && (
-              <p className="text-green-600 mt-2">Applied Coupon: {cart.coupon} (Discount: ${cart.discount.toFixed(2)})</p>
-            )}
-          </div>
-
-          {/* Proceed to Payment Button */}
-          {!showPayment ? (
-            <button 
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded w-full"
-              onClick={() => setShowPayment(true)}
-            >
-              Proceed to Payment
-            </button>
-          ) : (
-            <Elements stripe={stripePromise}>
-              <CheckoutForm total={cart.total - cart.discount} onSuccess={handleOrderSuccess} />
-            </Elements>
-          )}
-
-          {/* Clear Cart */}
-          <button 
-            className="px-4 py-2 bg-red-500 text-white rounded mt-4 w-full"
-            onClick={() => dispatch(clearCart())}
-          >
-            Clear Cart
-          </button>
-        </div>
-      )}
+      <button onClick={handlePayment}>Proceed to Payment</button>
+      <button onClick={() => dispatch(clearCart())}>Clear Cart</button>
     </div>
   );
 }

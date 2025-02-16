@@ -14,7 +14,7 @@ function AdminRegister() {
         return;
       }
 
-      const res = await axios.post("http://localhost:5000/api/admin/register", 
+      const res = await axios.post("http://localhost:8000/api/admin/register", 
         { name, email, password }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );

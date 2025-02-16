@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function DriverDashboard() {
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
-  const token = localStorage.getItem("driverToken");
+  const { driver, token } = useSelector((state) => state.driver); // ✅ Get driver info from Redux Persist
+
 
   useEffect(() => {
     if (!token) {
@@ -13,8 +15,8 @@ function DriverDashboard() {
       window.location.href = "/driver-login";
       return;
     }
-
-    axios.get("http://localhost:5000/api/driver/orders/available", {
+    console.log( token );
+    axios.get("http://localhost:8000/api/driver/orders/available", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => setOrders(res.data))
@@ -27,11 +29,20 @@ function DriverDashboard() {
       // Get driver’s current location
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
+        console.log( driver );
+        const driverId = driver._id;
+        console.log( driverId, latitude, longitude );
+        console.log(token);
         await axios.put(
-          `http://localhost:5000/api/driver/orders/${orderId}/assign`,
-          { lat: latitude, lng: longitude },
+          `http://localhost:8000/api/driver/orders/${orderId}/assign`,
+          { driverId: driverId, lat: latitude, lng: longitude },
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
+
+          // ✅ Store assigned orders in LocalStorage
+        const currentOrders = JSON.parse(localStorage.getItem("currentOrders")) || [];
+        localStorage.setItem("currentOrders", JSON.stringify([...currentOrders, orderId]));
 
         // Remove the order from available orders
         setOrders(orders.filter(order => order._id !== orderId));
@@ -53,7 +64,7 @@ function DriverDashboard() {
       <ul>
         {orders.map(order => (
           <li key={order._id} className="list-item">
-            <span>Order ID: {order._id} - {order.userName}</span>
+            <span>Order ID: {order._id} - {order.userName} - {order.deliveryAddress}</span>
             <button onClick={() => handlePickUpOrder(order._id)} className="pickup-btn">Pick Up</button>
           </li>
         ))}

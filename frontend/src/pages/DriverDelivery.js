@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { GoogleMap, Marker, DirectionsRenderer, useLoadScript } from "@react-google-maps/api";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 const mapContainerStyle = { width: "100%", height: "400px" };
 const GOOGLE_MAPS_API_KEY = "AIzaSyBt8t8xMW05ps5KQzLlQtbgmzSXyuvx5EE"; // Replace with your actual API key
@@ -14,8 +15,7 @@ function DriverDelivery() {
   const [location, setLocation] = useState(DEFAULT_CENTER); // ✅ Default value
   const [destination, setDestination] = useState(null);
   const [directions, setDirections] = useState(null);
-  const token = localStorage.getItem("driverToken");
-
+  const { driver, token } = useSelector((state) => state.driver); // ✅ Get driver info from Redux Persist
   const { isLoaded } = useLoadScript({ googleMapsApiKey: GOOGLE_MAPS_API_KEY });
 
   useEffect(() => {
@@ -33,7 +33,7 @@ function DriverDelivery() {
   // ✅ Fetch Delivery Address and Convert to Lat/Lng
   const getDeliveryAddress = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/order/${orderId}`);
+      const response = await axios.get(`http://localhost:8000/api/order/${orderId}`);
       const address = response.data.deliveryAddress;
 
       if (!address) {
@@ -72,7 +72,7 @@ function DriverDelivery() {
         try {
           if( latitude && longitude ){
             await axios.put(
-              `http://localhost:5000/api/driver/orders/${orderId}/update-location`,
+              `http://localhost:8000/api/driver/orders/${orderId}/update-location`,
               { lat: latitude, lng: longitude },
               { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -126,14 +126,18 @@ function DriverDelivery() {
   const handleDelivery = async () => {
     try {
       await axios.put(
-        `http://localhost:5000/api/driver/orders/${orderId}/delivered`,
+        `http://localhost:8000/api/driver/orders/${orderId}/delivered`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+        // ✅ Remove from "Current Orders"
+      const currentOrders = JSON.parse(localStorage.getItem("currentOrders")) || [];
+      localStorage.setItem("currentOrders", JSON.stringify(currentOrders.filter(id => id !== orderId)));
       alert("✅ Order Delivered!");
       navigate("/driver-dashboard");  // ✅ Redirect back to Dashboard
     } catch (error) {
+      console.log( error );
       alert("❌ Failed to mark order as delivered");
     }
   };

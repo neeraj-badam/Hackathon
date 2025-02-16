@@ -4,14 +4,17 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 function Orders() {
-  const { user } = useSelector((state) => state.user);
+  const { user, token } = useSelector((state) => state.user);
+  const storedData = localStorage.getItem('persist:root');
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     if (user) {
-      axios.get(`http://localhost:5000/api/orders?userId=${user.uid}`)
-        .then((res) => setOrders(res.data))
-        .catch((err) => console.error("Error fetching orders:", err));
+      console.log( token );
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        axios.get(`http://localhost:8000/api/orders?userId=${user._id}`, config)
+          .then((res) => setOrders(res.data))
+          .catch((err) => console.error("Error fetching orders:", err));
     }
   }, [user]);
 
