@@ -105,7 +105,14 @@ router.put("/orders/:orderId/assign", verifyDriver, async (req, res) => {
     const { orderId } = req.params;
     const { lat, lng, driverId } = req.body; // Initial Driver Location
     console.log( 'Entered with id ' + orderId);
-    // Find and assign order to driver
+    
+    const has_order = await Order.findById(
+      orderId
+    );
+    if( has_order.driverId ){
+      return res.status(400).json({ error: "Order Already Assigned" });
+    }
+    
     const order = await Order.findByIdAndUpdate(
       orderId,
       { driverId, status: "Out for Delivery", location: { lat, lng } },
