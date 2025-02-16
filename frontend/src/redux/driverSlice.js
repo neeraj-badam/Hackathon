@@ -5,7 +5,7 @@ import storage from "redux-persist/lib/storage"; // ✅ Uses localStorage
 // ✅ Persist Config for Driver
 const persistConfig = {
   key: "driver",
-  storage,
+  storage
 };
 
 // ✅ Initial State
@@ -28,7 +28,8 @@ const driverSlice = createSlice({
 
       // ✅ Clear only driver-related persisted data
       localStorage.removeItem("persist:driver");
-      localStorage.removeItem("persist:root");
+      localStorage.removeItem('persist:root');
+
     },
   },
 });

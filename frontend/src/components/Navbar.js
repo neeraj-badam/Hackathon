@@ -29,6 +29,7 @@ function Navbar() {
     if (!user) return;
 
     socket.on(`orderUpdate:${user._id}`, (data) => {
+      console.log( data );
       if (audioEnabled) {
         audioRef.current.play().catch((err) => console.error("🔊 Sound play error:", err));
       }
@@ -43,16 +44,29 @@ function Navbar() {
 
   const handleLogout = async () => {
     if(user){
-      dispatch(logout()); 
+      dispatch(logout());      
+      await persistor.purge(); // ✅ Clear Redux Persist storage
+
+        // ✅ Use navigate after state updates
+      navigate('/login', { replace: true }); 
     }
     if( admin ){
       dispatch(adminLogout()); 
+      persistor.purge(); // ✅ Clear Redux Persist storage
+
+      await persistor.purge(); // ✅ Clear Redux Persist storage
+
+        // ✅ Use navigate after state updates
+      navigate('/login', { replace: true }); 
     }
     if(driver){
       dispatch(driverLogout());
+      
+      await persistor.purge(); // ✅ Clear Redux Persist storage
+
+        // ✅ Use navigate after state updates
+      navigate('/login', { replace: true }); 
     }
-    persistor.purge(); // ✅ Clear Redux Persist storage
-    navigate('/login');
   };
 
   const enableAudio = () => setAudioEnabled(true);
@@ -62,6 +76,9 @@ function Navbar() {
     <nav style={{ padding: "10px", background: "#333", color: "white", display: "flex", justifyContent: "space-between" }} onClick={enableAudio} onMouseEnter={enableAudio}>
       <div>
         {user || admin ?
+          admin ?
+          <Link to="/admin" style={{ color: "white", marginRight: "15px", textDecoration: "none", fontSize: "18px" }}>Home</Link>
+          :
           <Link to="/home" style={{ color: "white", marginRight: "15px", textDecoration: "none", fontSize: "18px" }}>Home</Link>
           :
           <Link to="/driver-dashboard" style={{ color: "white", marginRight: "15px", textDecoration: "none", fontSize: "18px" }}>Dashboard</Link>

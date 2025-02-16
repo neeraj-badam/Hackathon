@@ -30,11 +30,13 @@ function Checkout() {
     try {
       const stripe = await stripePromise;
       console.log( user );
+      
       const res = await axios.post("http://localhost:8000/api/payment", { 
         items, 
         userId: user._id,
         userName: user.name,
-        deliveryAddress: user.address
+        deliveryAddress: user.address,
+        discount: discount
       });
 
       if (res.data.error) {

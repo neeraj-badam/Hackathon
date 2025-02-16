@@ -31,9 +31,11 @@ function Orders() {
               <p>Status: <strong>{order.status}</strong></p>
               <p>Placed on: {new Date(order.createdAt).toLocaleString()}</p>
               <p>Total: ${order.total.toFixed(2)}</p>
-              <Link to={`/order/${order._id}/tracking`} style={{ textDecoration: "none", color: "blue" }}>
-                Track Order
-              </Link>
+              { order.status === 'Delivered' ? <></> : 
+                <Link to={`/order/${order._id}/tracking`} style={{ textDecoration: "none", color: "blue" }}>
+                  Track Order
+                </Link>
+              }
             </li>
           ))}
         </ul>

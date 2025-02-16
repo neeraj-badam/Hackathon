@@ -139,42 +139,41 @@ function AdminPanel() {
       </div>
 
       <div className="section">
-  <h3>Orders</h3>
-  <ul className="order-list">
-    {orders.map((order) => (
-      <li key={order._id} className="order-item">
-        <span className="order-details">
-          Order ID: {order._id} - {order.status}
-        </span>
-        
-        <div className="order-actions">
-          {/* Status Dropdown */}
-          <select
-            className="order-status-dropdown"
-            onChange={(e) => handleStatusChange(order._id, e.target.value)}
-            defaultValue={order.status}
-          >
-            <option value="Pending">Pending</option>
-            <option value="Out for Delivery">Out for Delivery</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Delivered">Delivered</option>
-          </select>
+          <h3>Orders</h3>
+          <ul className="order-list">
+            {orders.map((order) => (
+              <li key={order._id} className="order-item">
+                <span className="order-details">
+                  Order ID: {order._id} - {order.status}
+                </span>
+                
+                <div className="order-actions">
+                  {/* Status Dropdown */}
+                  <select
+                    className="order-status-dropdown"
+                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    defaultValue={order.status}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Out for Delivery">Out for Delivery</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
 
-          {/* Update Button */}
-          <button onClick={() => handleUpdateOrderStatus(order._id)} className="update-btn">
-            Update Status
-          </button>
+                  {/* Update Button */}
+                  <button onClick={() => handleUpdateOrderStatus(order._id)} className="update-btn">
+                    Update Status
+                  </button>
 
-          {/* Delete Button */}
-          <button onClick={() => handleDeleteOrder(order._id)} className="delete-btn">
-            Delete
-          </button>
+                  {/* Delete Button */}
+                  <button onClick={() => handleDeleteOrder(order._id)} className="delete-btn">
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-      </li>
-    ))}
-  </ul>
-</div>
-
 
       <div className="section">
         <h3>Products 

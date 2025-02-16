@@ -6,10 +6,12 @@ import { useSelector } from "react-redux";
 function DriverDashboard() {
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
-  const { driver, token } = useSelector((state) => state.driver); // ✅ Get driver info from Redux Persist
-
+  // const { driver, token } = useSelector((state) => state.driver); // ✅ Get driver info from Redux Persist
+  const { driver, token } = useSelector((state) => state.driver);
 
   useEffect(() => {
+    console.log( driver );
+    console.log( token );
     if (!token) {
       alert("Access Denied! Drivers only.");
       window.location.href = "/driver-login";
@@ -26,6 +28,7 @@ function DriverDashboard() {
   // ✅ Pick Up Order (Assign Driver)
   const handlePickUpOrder = async (orderId) => {
     try {
+      console.log('pickup');
       // Get driver’s current location
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
@@ -54,7 +57,12 @@ function DriverDashboard() {
       });
 
     } catch (error) {
-      alert("Failed to assign order");
+      console.log('direct');
+      if (error.response && error.response.status === 400) {
+          alert("Driver already assigned");
+      } else {
+          alert("Failed to assign order");
+      }
     }
   };
 

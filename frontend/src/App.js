@@ -36,28 +36,25 @@ function App() {
   const [initialized, setInitialized] = useState(false); // ✅ Track if redirection is done
 
 
-  useEffect(() => {
-    if (!initialized) {
-      console.log( 'enter' );
-      // ✅ Restore user session from localStorage only once (on initial load)
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      const storedAdmin = JSON.parse(localStorage.getItem("admin"));
-      const storedDriver = JSON.parse(localStorage.getItem("driver"));
+  // useEffect(() => {
+  //   if (!initialized) {
+  //     console.log( 'enter' );
+  //     console.log( driver );
+  //     if (user) {
+  //       dispatch(login({ user: user }));
+  //       navigate("/home");
+  //     } else if (admin) {
+  //       dispatch(adminLogin({ admin: admin }));
+  //       navigate("/admin");
+  //     } else if (driver) {
+  //       console.log('doubler enter');
+  //       dispatch(driverLogin({ driver: driver }));
+  //       navigate("/driver-dashboard");
+  //     }
 
-      if (storedUser) {
-        dispatch(login({ user: storedUser }));
-        navigate("/home");
-      } else if (storedAdmin) {
-        dispatch(adminLogin({ admin: storedAdmin }));
-        navigate("/admin");
-      } else if (storedDriver) {
-        dispatch(driverLogin({ driver: storedDriver }));
-        navigate("/driver-dashboard");
-      }
-
-      setInitialized(true); // ✅ Prevent running again
-    }
-  }, [dispatch, navigate, initialized]);
+  //     setInitialized(true); // ✅ Prevent running again
+  //   }
+  // }, [dispatch, navigate, initialized]);
 
 /*
   useEffect(() => {

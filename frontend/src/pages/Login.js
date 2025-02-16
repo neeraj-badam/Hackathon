@@ -59,10 +59,9 @@ function Login() {
 
       // ✅ Check if user exists in the backend
       const response = await axios.get(`http://localhost:8000/api/auth/check-user?email=${user.email}`);
-
-      if (response.data.exists) {
-        console.log(response.data);
-        dispatch(login({ user }));
+      console.log( response.data );
+      if (response.data.existingUser) {
+        dispatch(login({ user: response.data.existingUser, token: response.data.token }));
         navigate("/home");
       } else {
         // 🚀 Redirect to Register with Google Data
@@ -70,6 +69,7 @@ function Login() {
         dispatch(logout());
       }
     } catch (error) {
+      console.log( error );
       setErrors({ login: "Google login failed. Please try again." });
     }
   };

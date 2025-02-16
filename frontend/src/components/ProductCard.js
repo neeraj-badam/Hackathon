@@ -59,6 +59,7 @@ function ProductCard({ product }) {
       // ✅ Refresh product reviews from backend
       fetchReviews();
       closeReviewModal(); // ✅ Close modal after submission
+      window.location.reload();
     } catch (error) {
       console.error("❌ Error submitting review:", error);
     }
@@ -85,7 +86,12 @@ function ProductCard({ product }) {
         <div style={styles.quantityContainer}>
           <button onClick={() => dispatch(decreaseQuantity(product._id))} style={styles.quantityButton}>-</button>
           <span style={styles.quantity}>{cartItem.quantity}</span>
-          <button onClick={() => dispatch(increaseQuantity(product._id))} style={styles.quantityButton}>+</button>
+          {
+            (product.stock - 1) >= cartItem.quantity ?
+            <button onClick={() => dispatch(increaseQuantity(product._id))} style={styles.quantityButton}>+</button>
+            :
+            <></>
+          }
           <button onClick={() => dispatch(removeFromCart(product._id))} style={styles.trashButton}>🗑️</button>
         </div>
       ) : (
