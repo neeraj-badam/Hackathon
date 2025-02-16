@@ -60,6 +60,7 @@ module.exports = (io) => {
       await newDriver.save();
       res.json({ message: "Driver registered successfully. Please login." });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: "Registration failed" });
     }
   });

@@ -112,12 +112,12 @@ app.post("/api/orders/create", async (req, res) => {
 // ✅ Stripe Payment Route: Create Checkout Session
 app.post("/api/payment", async (req, res) => {
   try {
-    const { items, userId, deliveryAddress, userName } = req.body;
+    const { items, userId, deliveryAddress, userName, discount } = req.body;
     if (!items || items.length === 0 || !userId) {
-
       return res.status(400).json({ error: "No items or user ID provided for checkout" });
     }
-    
+
+        
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: items.map((item) => ({
@@ -134,7 +134,7 @@ app.post("/api/payment", async (req, res) => {
     });
 
 
-    
+    console.log('creating order');
     // ✅ Fix: Ensure Order is Created for User
     const newOrder = new Order({
       userId,

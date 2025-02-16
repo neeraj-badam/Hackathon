@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
   if (user && await bcrypt.compare(password, user.password)) {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
     console.log( user );
-    res.json({ token, user });
+    res.json({ token, user, exists: true});
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
   }
@@ -47,11 +47,13 @@ router.get("/check-user", async (req, res) => {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.json({ exists: true });
+      const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+      res.send({ token, existingUser });
     } else {
-      return res.json({ exists: false });
+      return res.send({ exists: false });
     }
   } catch (error) {
+    console.log( error );
     res.status(500).json({ error: "Server error" });
   }
 });
