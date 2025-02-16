@@ -6,7 +6,7 @@ import axios from "axios";
 
 const socket = io("http://localhost:8000");
 const mapContainerStyle = { width: "100%", height: "400px" };
-const GOOGLE_MAPS_API_KEY = "AIzaSyBt8t8xMW05ps5KQzLlQtbgmzSXyuvx5EE"; // Replace with your actual API key
+const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 const DEFAULT_CENTER = { lat: 35.2271, lng: -80.8431 }; // Default location
 
