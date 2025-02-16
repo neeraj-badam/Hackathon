@@ -16,7 +16,12 @@ router.post('/register', async (req, res) => {
     await user.save();
     res.status(201).json({ user, message: 'User registered' });
   } catch (error) {
-    res.status(400).json({ error: 'Error creating user' });
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+      console.log('enter if');
+      return res.status(400).json({ error: "Email already exists. Please try another email." });
+    }
+    console.log('here');
+    res.status(500).json({ error: "Internal Server Error. Please try again later." });
   }
 });
 
@@ -28,6 +33,7 @@ router.post('/login', async (req, res) => {
 
   if (user && await bcrypt.compare(password, user.password)) {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    console.log( user );
     res.json({ token, user });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });

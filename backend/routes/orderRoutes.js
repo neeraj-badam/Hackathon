@@ -41,6 +41,22 @@ module.exports = (io) => {
       }
     });
 
+    router.get("/", authMiddleware, async (req, res) => {
+      try {
+        console.log('ENTER');
+          const userId = req.query.userId; // Extract userId from query
+          if (!userId) {
+              return res.status(400).json({ error: "User ID is required" });
+          }
+
+          const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+          res.json(orders);
+      } catch (error) {
+          console.error("Error fetching orders:", error.message);
+          res.status(500).json({ error: "Failed to fetch orders" });
+      }
+  });
+
     router.get("/:orderId", async (req, res) => {
       try {
         const { orderId } = req.params;

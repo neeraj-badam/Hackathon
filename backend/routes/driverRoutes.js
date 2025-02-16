@@ -101,6 +101,7 @@ router.get("/orders/available", verifyDriver, async (req, res) => {
 // ✅ Assign an order to a driver
 router.put("/orders/:orderId/assign", verifyDriver, async (req, res) => {
   try {
+    console.log('Enter');
     const { orderId } = req.params;
     const { lat, lng, driverId } = req.body; // Initial Driver Location
     console.log( 'Entered with id ' + orderId);
@@ -163,12 +164,14 @@ router.put("/orders/:orderId/update-location", verifyDriver, async (req, res) =>
 // ✅ Mark Order as Delivered
 router.put("/orders/:orderId/delivered", verifyDriver, async (req, res) => {
   try {
+    console.log(' ENTER DELIVERED ');
     const { orderId } = req.params;
 
     const order = await Order.findByIdAndUpdate(orderId, { status: "Delivered" }, { new: true });
+    const userId = order.userId;
 
     // Notify customer that order is delivered
-    io.emit("orderUpdate", { orderId, status: "Delivered" });
+    io.emit(`orderUpdate:${order.userId}`, { orderId, status: "Delivered" });
 
     res.json({ message: "Order marked as delivered", order });
   } catch (error) {
